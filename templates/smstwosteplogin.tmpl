@@ -1,0 +1,62 @@
+%{ Login template of SmsTwoStepAuthContrib }%
+%TMPL:INCLUDE{"foswiki"}%
+
+%TMPL:DEF{"webaction"}%%MAKETEXT{"TWiki Two Factor Authentication"}%%TMPL:END%
+%TMPL:DEF{"titleaction"}%%MAKETEXT{"(Access code login)"}% %TMPL:END%
+%TMPL:DEF{"LOG_IN_BANNER"}%%TMPL:END%
+%TMPL:DEF{"LOGGED_IN_BANNER"}%%TMPL:END%
+
+%TMPL:DEF{"pagetitle"}%%TMPL:END%
+
+%TMPL:DEF{"titleaction"}%%MAKETEXT{"([_1] login)" args="<nop>%WIKITOOLNAME%"}%%TMPL:END%
+
+%TMPL:DEF{"title"}%---++ %MAKETEXT{"Please enter the access code received via SMS"}%
+%TMPL:END%
+
+%TMPL:DEF{"titlestep"}%<div class="foswikiFormStep">
+%TMPL:P{"title"}%
+%TMPL:P{"notestep"}%
+%TMPL:P{"errorstep"}%</div><!-- /foswikiFormStep-->%TMPL:END%
+
+%TMPL:DEF{"notestep"}%<div style="display:%IF{'defined ERROR or defined NOTE or defined BANNER' then='block' else='none'}%;">
+%IF{"defined NOTE AND $NOTE != ''" then='---+++ %NOTE%'}%</div>%TMPL:END%
+
+%TMPL:DEF{"errorstep"}%%IF{"defined BANNER AND $BANNER != ''" then='<div class="foswikiNotification twikiAlert twikiUnvisited patternLoginNotification">%BANNER%%IF{"defined ERROR AND $ERROR != ''" then='<!--%TMPL:P{"error"}%-->'}%</div>'}%%TMPL:END%
+
+%TMPL:DEF{"error"}%%MAKETEXT{"Error: [_1]" args="%ERROR%"}%%TMPL:END%
+
+%TMPL:DEF{"formstart"}%<form action='%SCRIPTURLPATH{"login"}%/%WEB%/%TOPIC%' name='loginform' method='post'>%TMPL:END%
+
+%TMPL:DEF{"formend"}%<literal> <input type='hidden' name='username' value='%LOGINNAME%' /> %QUERYPARAMS{encoding="entity" format="<input type='hidden' name='$name' value='$value' />"}% </literal><input type="hidden" name="origurl" value="%ORIGURL%" /></form>%TMPL:END%
+
+%TMPL:DEF{"accesscodefield"}%<input tabindex='1' type='text' class='foswikiInputField twikiFocus' size='40' name='accesscode' value='' />%TMPL:END%
+
+%TMPL:DEF{"accesscodestep"}%<div class="foswikiFormStep">
+---+++ %MAKETEXT{"Access code for <nop>[_1]" args="%LOGINNAME%"}%
+
+%TMPL:P{"accesscodefield"}% %TMPL:P{"accesscodefieldhelp"}%
+
+</div><!-- /foswikiFormStep-->%TMPL:END%
+
+%TMPL:DEF{"accesscodenote"}%This <nop>%WIKITOOLNAME% requires two-step authentication. This is step two. Please check the SMS (text message) on your mobile phone - you will get a one-time-use access code. Enter the access code to log in. %TMPL:END%
+
+%TMPL:DEF{"accesscodefieldhelp"}% <div class="foswikiHelp">%TMPL:P{"accesscodenote"}%</div> %TMPL:END%
+
+%TMPL:DEF{"submitstep"}%<div class="foswikiFormStep">%TMPL:P{"submit"}%</div><!-- /twikiFormStep-->%TMPL:END%
+
+%TMPL:DEF{"submit"}%<input tabindex='4' type='submit' class='foswikiSubmit' value='%MAKETEXT{"Logon"}%' />%TMPL:END%
+
+%{ please keep the spaces between the div and the TMPL seealsonote, it allows TWiki to process the emailaddress }%
+%TMPL:DEF{"seealsostep"}%<div class="foswikiFormStep twikiGrayText twikiLast"> %TMPL:P{"seealsonote"}% </div><!-- /twikiFormStep-->%TMPL:END%
+
+%TMPL:DEF{"seealsonote"}% %MAKETEXT{"If you have any questions, please contact [_1]" args="%IF{"defined WIKIWEBMASTER AND $WIKIWEBMASTER != ''" then="%WIKIWEBMASTER%" else="your TWiki administrator"}%"}% %TMPL:END%
+
+%TMPL:DEF{"form"}%<div id="foswikiLogin">
+<div class="foswikiFormSteps">%TMPL:P{"formstart"}%%TMPL:P{"titlestep"}%
+%TMPL:P{"accesscodestep"}%%TMPL:P{"submitstep"}%
+%TMPL:P{"formend"}%
+%TMPL:P{"seealsostep"}%
+</div><!-- /foswikiFormSteps-->
+</div><!-- /foswikiLogin-->%TMPL:END%
+
+%TMPL:DEF{"content"}%%TMPL:P{"form"}%%TMPL:END%

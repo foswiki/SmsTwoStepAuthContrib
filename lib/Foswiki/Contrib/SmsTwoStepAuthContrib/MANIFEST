@@ -1,0 +1,16 @@
+data/System/SmsTwoStepAuthContrib.txt 0644
+lib/Foswiki/Contrib/SmsTwoStepAuthContrib.pm 0644
+lib/Foswiki/Contrib/SmsTwoStepAuthContrib/Config.spec 0644
+lib/Foswiki/Contrib/SmsTwoStepAuthContrib/DEPENDENCIES 0644
+lib/Foswiki/LoginManager/SmsTwoStepLogin.pm 0775
+pub/System/SmsTwoStepAuthContrib/mobile-carrier.gif 0644
+pub/System/SmsTwoStepAuthContrib/sms-2step-auth-diagram.png 0644
+pub/System/SmsTwoStepAuthContrib/sms-2step-auth-diagram.ppt 0644
+pub/System/SmsTwoStepAuthContrib/sms-access-code-login-350.png 0644
+pub/System/SmsTwoStepAuthContrib/sms-access-code-login.png 0644
+pub/System/SmsTwoStepAuthContrib/sms.gif 0644
+templates/smstwostepemaillogin.tmpl 0644
+templates/smstwostepemailmessage.tmpl 0644
+templates/smstwosteperrorlogin.tmpl 0644
+templates/smstwosteplogin.tmpl 0644
+templates/smstwostepmessage.tmpl 0644
