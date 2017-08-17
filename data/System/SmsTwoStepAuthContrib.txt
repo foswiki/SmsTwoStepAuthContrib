@@ -1,42 +1,220 @@
-<!--
-One line description, required for extensions repository catalog.
-   * Set SHORTDESCRIPTION = Provide NTLM authentication for Net::SMTP e-mail from Foswiki
--->
----+!! SmsTwoStepLoginContrib
-
+%META:TOPICINFO{author="ProjectContributor" date="1502939431" format="1.1" version="1"}%
+---+!! SMS Two-Step Authentication Contrib Package
+<sticky>
+<div style="float:right; background-color:#EBEEF0; margin:0 0 20px 20px; padding: 0 10px 0 10px;">
+%TOC{ title="Page contents" depth="2" }%
+</div>
+<div style="float:right; margin:0 0 20px 20px; padding: 0 10px 0 10px;">
+<img src="%ATTACHURLPATH%/sms-access-code-login-350.png" alt="sms-access-code-login-350.png" width="350" height="230" />
+</div>
+</sticky>
 %SHORTDESCRIPTION%
 
-%TOC%
+---++ Introduction
 
----++ Installation
-%$INSTALL_INSTRUCTIONS%
+A single step log-in may not be sufficient in a high security environment. [[Wikipedia:Two-step_verification][Two-step verification]] makes it harder for an intruder to impersonate a user.
 
-This contrib is used by Wiki administrators, and is not directly relevant to ordinary users.
+This extension adds two-step authentication to Foswiki. The first step is the usual log-in with name and password. After that, a second authentication screen is shown prompting the user to enter an access code. The access code is sent via SMS ([[Wikipedia:Short_Message_Service][Short Message Service]]) to the mobile phone of the user who just logged in. This access code can be used only once. If enabled, the access code can also be sent to the registered e-mail address of the log-in user. A white-list can be defined so that users can log in with a single step at trusted locations, such as at known office locations.
 
-It applies to installations using the Net::SMTP email method for Foswiki-originated e-mail, 
-and does not apply to those installations using sendmail or another mail program to send mail.
+---++ Detailed Documentation
 
-Simply install this contrib to enable Foswiki email originated by Net::SMTP to use servers
-that require NTLM (Microsoft Windows) authentication.
+<sticky><div style="float:right; margin:0 0 20px 20px; padding: 0 10px 0 10px;">
+&nbsp;&nbsp; __Diagram of two-step log-in process:__ %BR%
+<img src="%ATTACHURLPATH%/sms-2step-auth-diagram.png" alt="sms-2step-auth-diagram.png" width="638" height="487" />
+</div></sticky>
+Once this extension is installed and configured properly, the log-in process happens as follows:
 
-When the contrib has been installed, specify the Windows credentials in Configure under
-{SMTP}Username and {SMTP}{Password}.  To specify a domain name, enter it in the Username
-field as domain\username.  
+   * Foswiki's Login Manager shows the usual log-in screen.
+   * The user logs in with name and password.
+   * The Login Manager verifies the password - this can be against Foswiki's internal password manager or an external one, such as the LDAP password manager.
+   * If the password is OK, the !SmsTwoStepAuthContrib checks if the IP address of the user is white-listed.
+   * If white-listed, the !SmsTwoStepAuthContrib tells the Login Manager to log in the user.
+   * Else, the !SmsTwoStepAuthContrib generates a one-time-use access code, sends that to the registered user via SMS, and shows an access code log-in screen.
+      * If the user has not specified a mobile number and a carrier, and if enabled in configure, the access code is sent to the registered e-mail address of the user. 
+      * Else, an error message of insufficient credentials is shown.
+   * The Login Manager receives the access code and forwards it to the !SmsTwoStepAuthContrib.
+   * The !SmsTwoStepAuthContrib verifies the access code against the generated one.
+   * If OK, the !SmsTwoStepAuthContrib tells the Login Manager to log in the user.
 
-Although not recommended and insecure, you can prefix the username with V1: (e.g. V1:domain\user
-or V1:user) to requrest NTLMv1 authentication.
+__Notes:__
+
+   * White-listed IP addresses are typically used for offices so that employees can log in with a single step at work. The second step is implicit at trusted locations.
+   * The one-time-use access code has a configurable life-span, the default is 10 minutes.
+
+#MobileCarriers
+---++ Mobile Carriers
+
+Users get an SMS as part of the second authentication step. This extension sends an e-mail to an "e-mail to SMS gateway". These gateways are carrier specific. This list defines the parameters of each gateway.
+
+<noautolink>
+| *Type* | *Carrier* | *E-mail* | *Filter* | *Activation* |
+| E2SMS | USA: AT&T | $phone@txt.att.net | ^\+?1? | |
+| E2SMS | USA: Cingular GSM | $phone@cingularme.com | ^\+?1? | |
+| E2SMS | USA: Cingular TDMA | $phone@mmode.com | ^\+?1? | |
+| E2SMS | USA: Cricket | $phone@sms.mycricket.com | ^\+?1? | |
+| E2SMS | USA: Metro PCS | $phone@mymetropcs.com | ^\+?1? | |
+| E2SMS | USA: Nextel | $phone@messaging.nextel.com | ^\+?1? | |
+| E2SMS | USA: Sprint PCS | $phone@messaging.sprintpcs.com | ^\+?1? | |
+| E2SMS | USA: T-Mobile | $phone@tmomail.net | ^\+?1? | |
+| E2SMS | USA: US Cellular | $phone@email.uscc.net | ^\+?1? | |
+| E2SMS | USA: Verizon | $phone@vtext.com | ^\+?1? | |
+| E2SMS | France: Orange | $phone@orange.fr | ^\+?(33)? | |
+| E2SMS | France: SFR | $phone@sfr.fr | ^\+?(33)? | |
+| E2SMS | Germany: E-Plus | 0$phone@smseplus.de | ^\+?(49)?0? | Send START to 7676245 |
+| E2SMS | Germany: Mobilis | 0$phone@mobilis.de | ^\+?(49)?0? | |
+| E2SMS | Germany: Mannesmann M. | $phone@d2-message.de | ^\+?(49)?0? | |
+| E2SMS | Germany: O2 | 0$phone@o2online.de | ^\+?(49)?0? | Send +OPEN to 6245 |
+| E2SMS | Germany: Simyo | $phone@eplus.de | ^\+?(49)?0? | |
+| E2SMS | Germany: T-Mobile | +49$phone@t-d1-sms.de | ^\+?(49)?0? | Send OPEN to 8000 |
+| E2SMS | Germany: Vodafone | $phone@vodafone-sms.de | ^\+?(49)?0? | Send OPEN to 3400 |
+| E2SMS | Israel: Cellcom | $phone@cellcom.co.il | ^\+?(972)? | |
+| E2SMS | Israel: Orange IL | $phone@shiny.co.il | ^\+?(972)? | |
+| E2SMS | Israel: Spikko | $phone@spikosms.com | ^\+?(972)? | |
+| E2SMS | Netherlands: Dutchtone | 0$phone@sms.orange.nl | ^\+?(31)? | |
+| E2SMS | Netherlands: Orange-NL | 0$phone@sms.orange.nl | ^\+?(31)? | |
+| E2SMS | Netherlands: T-Mobile | 31$phone@gin.nl | ^\+?(31)? | Send EMAIL ON to 555 |
+| E2SMS | Switzerland: Sunrise Commun. | $phone@gsm.sunrise.ch | ^\+?(41)?0? | |
+| E2SMS | Switzerland: Sunrise Mobile | $phone@mysunrise.ch | ^\+?(41)?0? | |
+| E2SMS | Switzerland: Swisscom | $phone@bluewin.ch | ^\+?(41)?0? | |
+| E2SMS | UK: O2 | 44$phone@mmail.co.uk | ^\+?(44)? | Send text 'ON' to 212 |
+| E2SMS | UK: Orange | 44$phone@orange.net | ^\+?(44)? | Activate via website |
+| E2SMS | UK: T-Mobile | 44$phone@t-mobile.uk.net | ^\+?(44)? | Dial 191 for info, activate via website |
+| E2SMS | UK: Virgin Mobile | 44$phone@vmoble.com | ^\+?(44)? | |
+| E2SMS | UK: Vodafone | 44$phone@vodafone.net | ^\+?(44)? | Dial 242 for info. activate via website |
+</noautolink>
+
+__Legend of columns:__
+
+   * *Type:* Has to be !E2SMS
+   * *Carrier:* Name of carrier in format =Country: Carrier=. Keep the name short.
+   * *E-mail:* Gateway e-mail address. =$phone= expands to the user's mobile number.
+   * *Filter:* [[RegularExpression][Regular expression]] filter to clean up the mobile number. Typically used to strip country code and leading zeros. If a gateway requires the country code, strip it from the mobile number, then add it in the e-mail address.
+   * *Activation:* Some carriers require users to activate the e-mail to SMS gateway. Activation info is listed here, if any.
+
+__Carrier missing?__ Find more in these e-mail to SMS gateway lists:
+
+   * http://www.ukrainecalling.com/email-to-text.aspx
+   * http://www.emailtextmessages.com/
+   * http://www.wigwag.com/devblog/send-free-sms-texts-through-gateways/
+
+---++ Security Considerations
+
+This extension is primarily intended for access restricted Foswiki sites that are installed in a public cloud, such as Amazon AWS. We recommend to install an SSL certificate and to enforce the https protocol.
+
+IP address spoofing cannot be done because establishing an SSL connection requires a handshake. The response to a request is sent to the indicated IP address, and if spoofed, it ends up at the actual address, not the intruder's. Thus a handshake fails because the would-be intruder does not receive the response.
+
+---++ Installation Instructions
+
+You do not need to install anything on the browser to use this extension. These instructions are for the administrator who installs the package on the server where Foswiki is running.
+%TWISTY{
+ mode="div"
+ showlink="Show details %ICONURL{toggleopen}% "
+ hidelink="Hide details %ICONURL{toggleclose}% "
+}%
+
+---+++ Install !SmsTwoStepAuthContrib extension
 
 
----++ Info
+   * Configuration:
+      * Run the [[%SCRIPTURL{configure}%][configure]] script and open up the __Security setup__ section.
+         * The ={LoginManager}= needs to be set to =Foswiki::LoginManager::SmsTwoStepLogin=
+      * Configure additional contrib settings in the __Extensions__ section:
+         * White-listed IP addresses, typically used for offices so that employees can log in with a single step at work. Specify a comma-space separated list. Partial IP addresses ending in a dot can be used to specify a range. Example: <tt>1.2.3.4, 5.6.7.</tt>
+           %BR% ={SmsTwoStepAuthContrib}{WhitelistAddresses} = '';=
+         * Maximum age of access code in seconds, default is 600 (10 min):
+           %BR% ={SmsTwoStepAuthContrib}{MaxAge} = 600;=
+         * Mode of two-step authentication:
+           <ul>  <li> <tt>disabled</tt>: Single step authentication.
+           </li> <li> <tt>optional</tt>: Optional, e.g. user can chose. <b><i>Attention:</i></b> The !UserForm and !UserProfileHeader need to be updated - see instructions below.
+           </li> <li> <tt>required</tt>: Required for all users. (default)
+           </li> </ul>
+          ={SmsTwoStepAuthContrib}{TwoStepAuth} = 'required';=
+         * It is possible to send the access code by e-mail instead of SMS if the user has not specified a mobile number and a carrier. Possible values:
+           <ul>  <li> <tt>0</tt> or empty value: No e-mail sent, user cannot login (more secure).
+           </li> <li> <tt>1</tt>: Users with missing mobile and carrier get an e-mail with access code (more flexible).
+           </li> <li> List of users: Specify a comma-space separated list of WikiWord names of users who can get an e-mail. Examples:
+           <br /> <tt>JimmyNeutron</tt> - only one specified user
+           <br /> <tt>JimmyNeutron, <nop>DonaldDuck</tt> - only two specified users
+           </li> </ul>
+           ={SmsTwoStepAuthContrib}{AllowEmail} = '';=
+         * Name of two-step message template for SMS message:
+           %BR% ={SmsTwoStepAuthContrib}{SmsMessageTmpl} = 'smstwostepmessage';=
+         * Name of log-in screen template for SMS log-in:
+           %BR% ={SmsTwoStepAuthContrib}{SmsLoginTmpl} = 'smstwosteplogin';=
+         * Name of two-step message template for e-mail message:
+           %BR% ={SmsTwoStepAuthContrib}{EmailMessageTmpl} = 'smstwostepemailmessage';=
+         * Name of log-in screen template for e-mail log-in:
+           %BR% ={SmsTwoStepAuthContrib}{EmailLoginTmpl} = 'smstwostepemaillogin';=
+         * Name of log-in screen template in case of insufficient credentials:
+           %BR% ={SmsTwoStepAuthContrib}{ErrorLoginTmpl} = 'smstwosteperrorlogin';=
+         * Access code error message:
+           %BR% ={SmsTwoStepAuthContrib}{AcessCodeError} = 'Invalid or outdated access code, please try again.';=
 
-|  Author: | Foswiki:Main.TimotheLitt |
-|  Copyright &copy;: 2012, Timothe Litt, All Rights Reserved |
-|  License: | GPL ([[http://www.gnu.org/copyleft/gpl.html][GNU General Public License]]) |
-|  Dependencies: | %$DEPENDENCIES% |
-|  Version: | %$VERSION% |
-|  Change History: | <!-- versions below in reverse order -->&nbsp; |
-|  1.0 (27 Dec 2012): | Initial version |
-|  Home: | http://foswiki.org/Extensions/%TOPIC% |
-|  Support: | http://foswiki.org/Support/%TOPIC% |
+---+++ Update !UserForm
+
+The %USERSWEB%.UserForm topic needs to be updated. After the "Mobile" row add this row:
+<verbatim>
+| Mobile Carrier | select | 1 | , %INCLUDE{ "%SYSTEMWEB%.SmsTwoStepAuthContrib" section="carrierlist" }% | Mobile carrier | H |
+</verbatim>
+
+In case ={SmsTwoStepAuthContrib}{TwoStepAuth}= is set to ='optional'=, add the following to the %USERSWEB%.UserForm topic after the "Mobile Carrier" row:
+<verbatim>
+| Two Step Auth | radio | 2 | off, on | Select on to use two-factor authentication | H |
+</verbatim>
+
+---+++ Verify mobile carrier list
+
+Review the [[#MobileCarriers]] table above. Add additional carriers if needed.
+
+---+++ Test configuration
+
+Test if the configuration is successful:
+
+   * From a location that is white-listed, e.g. has its IP address in ={SmsTwoStepAuthContrib}{WhitelistAddresses}= do this:
+      * Log in with log-in name and password. You should be able to log in with a single step.
+      * Edit your user profile topic and specify a mobile number and mobile carrier.
+      * A "Send SMS" button should appear below the mobile number.
+      * Click on the "Send SMS" button and send yourself an SMS to verify proper operation.
+
+   * From a location that is *not* white-listed do this:
+      * Log in with log-in name and password.
+      * You should see an "Enter access code" screen, and get an SMS on your mobile phone with the access code.
+      * Enter the access code to complete the second authentication step.
+      * Repeat the log-in. This time enter an invalid access code to verify failed log-in and one-time-use of access code.
+
+%ENDTWISTY%
+
+---++ Contrib Info
+
+   * Set SHORTDESCRIPTION = Two-step authentication using SMS for the second step
+
+__Related Topics:__ %SYSTEMWEB%.FoswikiContribs, %SYSTEMWEB%.FoswikiPreferences
+
+---++ Change History
+
+%TABLE{columnwidths="7em" tablewidth="100%"}%
+|  2016-01-17: | TWikibug:Item7708: Copyright update to 2016 |
+|  2014-09-22: | TWikibug:Item7539: Add {TwoStepAuth} configuration, with 'disabled', 'optional' and 'required' two-step authentication modes |
+|  2014-09-11: | TWikibug:Item7540: Add debug flag and debug code |
+|  2014-09-10: | TWikibug:Item7540: Initial version |
+
+Many thanks to the following sponsors for supporting this work:
+   * [[http://www.wave.com/][Wave Systems Corp.]] 
+
+<!-- Do _not_ attempt to edit this topic; it is auto-generated. Please add comments/questions/remarks to the Dev topic instead. -->
 
 
+%META:FORM{name="PackageForm"}%
+%META:FIELD{name="Author" title="Author" value="TWiki:Main.PeteerThoeny, Foswiki:Main.GeorgeClark"}%
+%META:FIELD{name="Version" title="Version" value="%25$VERSION%25"}%
+%META:FIELD{name="Release" title="Release" value="%25$RELEASE%25"}%
+%META:FIELD{name="Repository" title="Repository" value="https://github.com/foswiki/SmsTwoFactorAuthContrib"}%
+%META:FIELD{name="Copyright" title="Copyright" value="&copy; 2014 Wave Systems Corp. %BR% &copy; 2014-2016 TWiki:Main.PeterThoeny %BR% &copy; 2014-2016 TWiki:TWiki.TWikiContributor %BR% &copy; 2017 ProjectContributors"}%
+%META:FIELD{name="License" title="License" value="[[http://www.gnu.org/licenses/gpl.html][GPL (Gnu General Public License)]]"}%
+%META:FIELD{name="Home" title="Home" value="Foswiki:Extensions.%25$ROOTMODULE%25"}%
+%META:FIELD{name="Support" title="Support" value="Foswiki:Support.%25$ROOTMODULE%25"}%
+%META:FILEATTACHMENT{name="mobile-carrier.gif" attachment="mobile-carrier.gif" attr="h" comment="" date="1502939431" size="890" user="ProjectContributor" version="1"}%
+%META:FILEATTACHMENT{name="sms.gif" attachment="sms.gif" attr="h" comment="" date="1502939431" size="2243" user="ProjectContributor" version="1"}%
+%META:FILEATTACHMENT{name="sms-2step-auth-diagram.png" attachment="sms-2step-auth-diagram.png" attr="h" comment="" date="1502939431" size="79934" user="ProjectContributor" version="1"}%
+%META:FILEATTACHMENT{name="sms-access-code-login.png" attachment="sms-access-code-login.png" attr="h" comment="" date="1502939431" size="42595" user="ProjectContributor" version="1"}%
+%META:FILEATTACHMENT{name="sms-access-code-login-350.png" attachment="sms-access-code-login-350.png" attr="h" comment="" date="1502939431" size="53563" user="ProjectContributor" version="1"}%

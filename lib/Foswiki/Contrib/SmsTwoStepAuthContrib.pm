@@ -15,7 +15,7 @@ use strict;
 use warnings;
 
 our $VERSION = '1.0';
-our $RELEASE = '1.0';
+our $RELEASE = '1 Sept 2017';
 
 our $SHORTDESCRIPTION =
   'Provide 2-factor login authentication using SMS messages.';
@@ -25,7 +25,7 @@ our $SHORTDESCRIPTION =
 __END__
 Foswiki - The Free and Open Source Wiki, http://foswiki.org/
 
-Author: George Clark, Peter Thoeny
+Author: Peter Thoeny, Ported by George Clark
 
 Copyright (C) 2017 Foswiki Contributors, All rights reserved.
 
