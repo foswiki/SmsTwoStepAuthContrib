@@ -30,7 +30,7 @@ Once this extension is installed and configured properly, the log-in process hap
    * If the password is OK, the !SmsTwoStepAuthContrib checks if the IP address of the user is white-listed.
    * If white-listed, the !SmsTwoStepAuthContrib tells the Login Manager to log in the user.
    * Else, the !SmsTwoStepAuthContrib generates a one-time-use access code, sends that to the registered user via SMS, and shows an access code log-in screen.
-      * If the user has not specified a mobile number and a carrier, and if enabled in configure, the access code is sent to the registered e-mail address of the user. 
+      * If the user has not specified a mobile number and a carrier, and if enabled in configure, the access code is sent to the registered e-mail address of the user.
       * Else, an error message of insufficient credentials is shown.
    * The Login Manager receives the access code and forwards it to the !SmsTwoStepAuthContrib.
    * The !SmsTwoStepAuthContrib verifies the access code against the generated one.
@@ -82,6 +82,23 @@ Users get an SMS as part of the second authentication step. This extension sends
 | E2SMS | UK: Virgin Mobile | 44$phone@vmoble.com | ^\+?(44)? | |
 | E2SMS | UK: Vodafone | 44$phone@vodafone.net | ^\+?(44)? | Dial 242 for info. activate via website |
 </noautolink>
+
+---+++ Section carrierlist
+
+The "carrierlist" section returns a comma separated list of carriers listed in this topic; it also sets spreadsheet hashes for later use.
+
+<div style="display: block;">
+%STARTSECTION{carrierlist}%%SEARCH{
+ "^\| *E2SMS *\|"
+ type="regex"
+ web="%WEB%"
+ topic="%TOPIC%"
+ nonoise="on"
+ multiple="on"
+ format="$pattern(.*\| *E2SMS *\|\s*([^\|]+).*)"
+ separator=", "
+}%%ENDSECTION{carrierlist}%
+</div>
 
 __Legend of columns:__
 
@@ -199,7 +216,7 @@ __Related Topics:__ %SYSTEMWEB%.FoswikiContribs, %SYSTEMWEB%.FoswikiPreferences
 |  2014-09-10: | TWikibug:Item7540: Initial version |
 
 Many thanks to the following sponsors for supporting this work:
-   * [[http://www.wave.com/][Wave Systems Corp.]] 
+   * [[http://www.wave.com/][Wave Systems Corp.]]
 
 <!-- Do _not_ attempt to edit this topic; it is auto-generated. Please add comments/questions/remarks to the Dev topic instead. -->
 

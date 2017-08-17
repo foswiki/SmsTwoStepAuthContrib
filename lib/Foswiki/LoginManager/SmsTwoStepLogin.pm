@@ -70,15 +70,14 @@ sub login {
     my $remember   = $query->param('remember');
     my $accessCode = $query->param('accesscode');
 
-    return $this->SUPER::login( $query, $session )
-      if ( $loginName eq $Foswiki::cfg{AdminUserLogin} );
+    #print STDERR Data::Dumper::Dumper( \$query );
 
-    # Eat these so there's no risk of accidental passthrough
-    #$query->delete( 'foswiki_origin', 'username', 'password', 'accesscode' );
+    return $this->SUPER::login( $query, $session )
+      if ( $loginName && $loginName eq $Foswiki::cfg{AdminUserLogin} );
 
     # UserMappings can over-ride where the login template is defined
     my $loginTemplate = $users->loginTemplateName();    #defaults to login.tmpl
-    my $tmpl = $session->templates->readTemplate($loginTemplate);
+    my $tmpl = Foswiki::Func::readTemplate($loginTemplate);
 
     my $banner = $session->templates->expandTemplate('LOG_IN_BANNER');
     my $note   = '';
@@ -125,35 +124,24 @@ sub login {
 
         print STDERR "2-Step: user/pass verified\n" if $validation;
 
-        if ( $validation && $loginName eq $Foswiki::cfg{AdminUserLogin} ) {
+        if ( $validation && $accessCode ) {
+
+       # received access code, verify it for second challenge on two-factor auth
+            $banner = $this->verifyAuth( $session, $loginName, $accessCode );
+            $validation = 0 if ($banner);
+
+            # Eat these so there's no risk of accidental passthrough
+            $query->delete( 'foswiki_origin', 'username', 'password',
+                'accesscode' );
         }
+        elsif ($validation) {
 
-        if ($validation) {
-
-            # present second challenge on two-factor auth
+            # Password validated, present second challenge on two-factor auth
             $tmpl = $this->secondStepAuth( $session, $loginName, $origurl );
             $validation = 0 if ($tmpl);
 
         }
-        elsif ($accessCode) {
-
-       # received access code, verify it for second challenge on two-factor auth
-            $banner = $this->verifyAuth( $loginName, $accessCode );
-            $validation = 1 unless ($banner);
-
-        }
-        elsif ( !$validation ) {
-            $banner = $session->templates->expandTemplate('UNRECOGNISED_USER');
-        }
-
-        if ($validation) {
-
-            # Let regular template login complete the process.
-            return $this->SUPER::login( $query, $session );
-
-        }
         else {
-
             # Tasks:Item1029  After much discussion, the 403 code is not
             # used for authentication failures. RFC states: "Authorization
             # will not help and the request SHOULD NOT be repeated" which
@@ -168,7 +156,81 @@ sub login {
                 }
             );
             $banner = $session->templates->expandTemplate('UNRECOGNISED_USER');
+
+            # Eat these so there's no risk of accidental passthrough
+            $query->delete( 'foswiki_origin', 'username', 'password',
+                'accesscode' );
         }
+
+        if ($validation) {
+
+            # SUCCESS our user is authenticated. Note that we may already
+            # have been logged in by the userLoggedIn call in loadSession,
+            # because the username-password URL params are the same as
+            # the params passed to this script, and they will be used
+            # in loadSession if no other user info is available.
+            $this->userLoggedIn($loginName);
+            $session->logger->log(
+                {
+                    level    => 'info',
+                    action   => 'login',
+                    webTopic => $web . '.' . $topic,
+                    extra    => "AUTHENTICATION SUCCESS - $loginName - "
+                }
+            );
+
+            # remove the sudo param - its only to tell TemplateLogin
+            # that we're using BaseMapper..
+            $query->delete('sudo');
+
+            $this->{_cgisession}->param( 'VALIDATION', $validation )
+              if $this->{_cgisession};
+            if ( !$origurl || $origurl eq $query->url() ) {
+                $origurl = $session->getScriptUrl( 0, 'view', $web, $topic );
+            }
+            else {
+
+                # Unpack params encoded in the origurl and restore them
+                # to the query. If they were left in the query string they
+                # would be lost if we redirect with passthrough.
+                # First extract the params, ignoring any trailing fragment.
+                if ( $origurl =~ s/\?([^#]*)// ) {
+                    foreach my $pair ( split( /[&;]/, $1 ) ) {
+                        if ( $pair =~ m/(.*?)=(.*)/ ) {
+                            $query->param( $1, TAINT($2) );
+                        }
+                    }
+                }
+
+                # Restore the action too
+                $query->action($origaction) if $origaction;
+            }
+
+            # Restore the method used on origUrl so if it was a GET, we
+            # get another GET.
+            $query->method($origmethod);
+            $session->redirect( $origurl, 1 );
+            return;
+        }
+
+        #else {
+
+        # Tasks:Item1029  After much discussion, the 403 code is not
+        # used for authentication failures. RFC states: "Authorization
+        # will not help and the request SHOULD NOT be repeated" which
+        # is not the situation here.
+        #    $session->{response}->status(200);
+        #    $session->logger->log(
+        #        {
+        #            level    => 'info',
+        #            action   => 'login',
+        #            webTopic => $web . '.' . $topic,
+        #            extra    => "AUTHENTICATION FAILURE - $loginName - ",
+        #        }
+        #    );
+        #    $banner = $session->templates->expandTemplate('UNRECOGNISED_USER');
+        #}
+
     }
     else {
 
@@ -238,6 +300,7 @@ Do second step authentication:
 sub secondStepAuth {
 
     my ( $this, $session, $loginName, $origUrl ) = @_;
+    $origUrl ||= '';
     my $wikiName = $session->{users}->getWikiName($loginName);
     my $debug    = $Foswiki::cfg{SmsTwoStepAuthContrib}{Debug};
     my $debugID  = "Foswiki::LoginManager::SmsTwoStepAuth::secondStepAuth";
@@ -247,8 +310,13 @@ sub secondStepAuth {
     # skip second auth if in command line context
     return '' if $session->inContext('command_line');
 
-    my ( $meta, $text ) =
-      Foswiki::Func::readTopic( $Foswiki::cfg{UsersWebName}, $wikiName );
+    my $topicObject =
+      Foswiki::Meta->load( $session, $Foswiki::cfg{UsersWebName}, $wikiName );
+
+    my @addresses;
+
+    # Try the form first
+    my $entry = $topicObject->get( 'FIELD', 'Email' );
 
     # check two-step auth mode
     my $twoStepAuth = $Foswiki::cfg{SmsTwoStepAuthContrib}{TwoStepAuth}
@@ -261,7 +329,7 @@ sub secondStepAuth {
 
     }
     elsif ( $twoStepAuth eq 'optional' ) {
-        my $field = $meta->get( 'FIELD', 'TwoStepAuth' );
+        my $field = $topicObject->get( 'FIELD', 'TwoStepAuth' );
         unless ( $field && Foswiki::Func::isTrue( $field->{value} ) ) {
             Foswiki::Func::writeDebug(
                 "$debugID: $wikiName opted out of two-step auth")
@@ -309,15 +377,16 @@ sub secondStepAuth {
     my $authPossible = 1;
 
     # get mobile number and carrier
-    my $field = $meta->get( 'FIELD', 'Email' );
+    my $field = $topicObject->get( 'FIELD', 'Email' );
     $email = $field->{value} if ($field);
-    $field = $meta->get( 'FIELD', 'Mobile' );
+    $field = $topicObject->get( 'FIELD', 'Mobile' );
     $mobile = $field->{value} if ($field);
-    $field = $meta->get( 'FIELD', 'MobileCarrier' );
+    $field = $topicObject->get( 'FIELD', 'MobileCarrier' );
     $carrier = $field->{value} if ($field);
 
 # get gateway e-mail from mobile carrier table row based on user's Mobile Carrier field
-    ( $meta, $text ) = Foswiki::Func::readTopic( $Foswiki::cfg{SystemWebName},
+    my ( $meta, $text ) =
+      Foswiki::Func::readTopic( $Foswiki::cfg{SystemWebName},
         'SmsTwoStepAuthContrib' );
 
     # Example mobile carrier table row:
@@ -391,15 +460,14 @@ sub secondStepAuth {
     # send e-mail to log-in user with access code
     if ($authPossible) {
         my $tmpl =
-          $session->templates->readTemplate( $messageTemplate,
-            $session->getSkin() );
+          Foswiki::Func::readTemplate( $messageTemplate, $session->getSkin() );
         return
 "Two-step authentication installation error: $messageTemplate template not found"
           unless ($tmpl);
         $tmpl =~ s/%EMAILADDRESS%/$email/geo;
         $tmpl =~ s/%ACCESSCODE%/$accessCode/go;
         $tmpl =
-          $session->handleCommonTags( $tmpl, $session->{webName},
+          Foswiki::Func::expandCommonVariables( $tmpl, $session->{webName},
             $session->{topicName} );
         $tmpl =~ s/<nop>//g;
         if ($debug) {
@@ -408,25 +476,19 @@ sub secondStepAuth {
             Foswiki::Func::writeDebug("$tmpl");
             Foswiki::Func::writeDebug("===(  END  )=============");
         }
-        my $warnings = $session->net->sendEmail($tmpl);
+        my $warnings = Foswiki::Func::sendEmail($tmpl);
+
         return "$warnings <hr /><pre>$tmpl</pre>" if ($warnings);
     }
 
     # load and return "enter access code" template
     my $tmpl =
-      $session->templates->readTemplate( $dialogTemplate, $session->getSkin() )
+      Foswiki::Func::readTemplate( $dialogTemplate, $session->getSkin() )
       || "Two-step authentication installation error: $dialogTemplate template not found";
     $tmpl =~ s/%LOGINNAME%/$loginName/go;
     $tmpl =~ s/%ORIGURL%/$origUrl/go;
     return $tmpl;
 }
-
-sub verifyAuth {
-    print STDERR "2-Step: verifyAuth called\n";
-    return '';
-}
-
-__END__
 
 =pod
 
@@ -437,33 +499,37 @@ Verify access code on second step authentication. Return empty string if OK, els
 =cut
 
 sub verifyAuth {
-    my( $this, $loginName, $accessCode ) = @_;
-    my $session = $this->{twiki};
-    my $debug = $Foswiki::cfg{SmsTwoStepAuthContrib}{Debug};
+    my ( $this, $session, $loginName, $accessCode ) = @_;
+    my $debug   = $Foswiki::cfg{SmsTwoStepAuthContrib}{Debug};
     my $debugID = "Foswiki::LoginManager::SmsTwoStepAuth::verifyAuth";
 
-    return '' if $session->inContext( 'command_line' );
+    return '' if $session->inContext('command_line');
 
     # compare to saved access code
-    my ( $expectedAC, $timestamp, $expectedLN )
-      = split( /:/, Foswiki::Func::getSessionValue( $sessionVarName ), 3 );
-    Foswiki::Func::clearSessionValue( $sessionVarName ); # clear session variable (one time use only)
+    my ( $expectedAC, $timestamp, $expectedLN ) =
+      split( /:/, Foswiki::Func::getSessionValue($sessionVarName), 3 );
+    Foswiki::Func::clearSessionValue($sessionVarName)
+      ;    # clear session variable (one time use only)
     my $maxAge = $Foswiki::cfg{SmsTwoStepAuthContrib}{MaxAge} || 600;
     my $error = '';
-    unless( $accessCode
-            && ( $accessCode eq $expectedAC )
-            && ( $loginName eq $expectedLN ) 
-            && $timestamp + $maxAge > time()
-    ) {
-        $error = $Foswiki::cfg{SmsTwoStepAuthContrib}{AcessCodeError} ||
-                 'Invalid or outdated access code, please try again';
+    print STDERR
+"Verify:  AC: $accessCode  Expected: $expectedAC LN: $loginName Expected: $expectedLN TS $timestamp+$maxAge > "
+      . time() . "\n";
+    unless ( $accessCode
+        && ( $accessCode eq $expectedAC )
+        && ( $loginName  eq $expectedLN )
+        && $timestamp + $maxAge > time() )
+    {
+        $error = $Foswiki::cfg{SmsTwoStepAuthContrib}{AcessCodeError}
+          || 'Invalid or outdated access code, please try again';
     }
-    if( $Foswiki::cfg{SmsTwoStepAuthContrib}{Debug} ) {
-        Foswiki::Func::writeDebug( "Foswiki::LoginManager::SmsTwoStepAuth::verifyAuth return: '$error'" );
+    if ( $Foswiki::cfg{SmsTwoStepAuthContrib}{Debug} ) {
+        Foswiki::Func::writeDebug(
+            "Foswiki::LoginManager::SmsTwoStepAuth::verifyAuth return: '$error'"
+        );
     }
     return $error;
 }
-
 
 1;
 __END__
@@ -477,7 +543,7 @@ Additional copyrights apply to some or all of the code in this
 file as follows:
 
 Copyright (C) 2014 Wave Systems Corp.
-Copyright (C) 2014-2016 Peter Thoeny, peter[at]thoeny.org 
+Copyright (C) 2014-2016 Peter Thoeny, peter[at]thoeny.org
 Copyright (C) 2014-2016 TWiki Contributors. All Rights Reserved.
 
 This program is free software; you can redistribute it and/or
