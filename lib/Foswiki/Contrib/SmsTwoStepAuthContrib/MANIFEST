@@ -1,3 +1,5 @@
+data/System/SmsAuthRegistrationParts.txt 0775
+data/System/SmsAuthUserForm.txt 0664
 data/System/SmsTwoStepAuthContrib.txt 0644
 lib/Foswiki/Contrib/SmsTwoStepAuthContrib.pm 0644
 lib/Foswiki/Contrib/SmsTwoStepAuthContrib/Config.spec 0644

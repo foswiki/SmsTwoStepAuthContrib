@@ -1,0 +1,53 @@
+%META:TOPICINFO{author="ProjectContributor" comment="" date="1450471494" format="1.1" version="1"}%
+%META:TOPICPARENT{name="AdminToolsCategory"}%
+<noautolink>
+
+---+ SMS 2-Step Authentication: User Registration components
+
+This topic contains the pieces that are assembled into the UserRegistration page.  There is no need to modify this topic.
+If a section of the same name is found in the [[%USERSWEB%.UserRegistration]] topic, it will be used instead of or in addition to sections in this topic.
+
+   * Read general customisation instructions in [[%SYSTEMWEB%.UserAuthentication]]
+
+This topic contains 3 fields for 2-step authentication, and allows them two be
+captured during user registration.  In order to enable these fields,  edit
+your %USERSWEB%.UserRegistration page and update the below settings:
+
+   1 Add this topic name to the "REGPARTS" setting:
+      * !%SET{"REGPARTS" value="%WEB%.%TOPIC%,%SYSTEMWEB%.UserRegistrationParts,%SYSTEMWEB%.SmsAuthRegistrationParts"}%
+   1 Enable the extra fields from the FIELDS setting.  Note that extraField_mobile and extraField_mobileCarrier.   The third field, extraField_twoStepAuth is only used if two-step authentication is optional.
+      * !%SET{"FIELDS" value="extraField_mobile,extraField_mobileCarrier,extraField_twoStepAuth"}%
+
+%JQREQUIRE{"chili"}%
+
+---++ Fields included on registration forms
+---+++ Optional field: =Mobile Number=
+<verbatim class="tml">
+%STARTSECTION{"extraField_mobile"}%<li><label class="desc" for="Fwk0Mobile">%MAKETEXT{"Mobile number:"}%</label>
+<div><input type="text" id="Fwk0Mibile" name="Fwk0Mobile" size="40" class="foswikiInputField" value="" tabindex="11" /></div></li>%ENDSECTION{"extraField_mobile"}%
+</verbatim>
+
+---+++ Optional field: =Mobile Carrier=
+<verbatim class="tml">
+%STARTSECTION{"extraField_mobileCarrier"}%<li><label class="desc" for="Fwk0MobileCarrier">%MAKETEXT{"Mobile carrier:"}%</label>
+<div><select id="Fwk0MobileCarrier" name="Fwk0MobileCarrier" tabindex="12" />%INCLUDE{"%SYSTEMWEB%.SmsTwoStepAuthContrib" section="carrierselect"}%</select>
+</div></li>%ENDSECTION{"extraField_mobileCarrier"}%
+</verbatim>
+
+---+++ Optional field: =Two Step Auth=
+<verbatim class="tml">
+%STARTSECTION{"extraField_twoStepAuth"}%<li><label class="desc" for="Fwk0TwoStepAuth">%MAKETEXT{"Use Two Step Authorization:"}%</label>
+<div><rinput type="radio" id="Fwk0TwoStepAuth" name="" value="on" tabindex="13" />
+<input type="radio" name="Fwk0TwoStepAuth" value="on"><label>Enabled</label><br>
+<input type="radio" name="Fwk0TwoStepAuth" value="off"><label>Disabled</label><br>
+</div></li>%ENDSECTION{"extraField_twoStepAuth"}%
+</verbatim>
+
+---++ Formfields used in User form:
+The above 3 fields capture data into the following User form fields:
+| Mobile | text | 60 | | Mobile number | |
+| Mobile Carrier | select | 1 | , %INCLUDE{ "%SYSTEMWEB%.SmsTwoStepAuthContrib" section="carrierlist" }% | Mobile carrier | |
+| Two Step Auth | radio | 2 | off, on | Select on to use two-factor authentication | |
+
+
+%META:PREFERENCE{name="ALLOWTOPICVIEW" title="ALLOWTOPICVIEW" type="Set" value="*"}%

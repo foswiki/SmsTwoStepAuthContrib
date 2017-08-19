@@ -382,7 +382,9 @@ sub secondStepAuth {
     $field = $topicObject->get( 'FIELD', 'Mobile' );
     $mobile = $field->{value} if ($field);
     $field = $topicObject->get( 'FIELD', 'MobileCarrier' );
-    $carrier = $field->{value} if ($field);
+
+    # AT&T will end up with the & entity encoded.
+    $carrier = Foswiki::entityDecode( $field->{value} ) if ($field);
 
 # get gateway e-mail from mobile carrier table row based on user's Mobile Carrier field
     my ( $meta, $text ) =

@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" date="1502939431" format="1.1" version="1"}%
+%META:TOPICINFO{author="BaseUserMapping_333" comment="" date="1503108486" format="1.1" version="2"}%
 ---+!! SMS Two-Step Authentication Contrib Package
 <sticky>
 <div style="float:right; background-color:#EBEEF0; margin:0 0 20px 20px; padding: 0 10px 0 10px;">
@@ -83,23 +83,6 @@ Users get an SMS as part of the second authentication step. This extension sends
 | E2SMS | UK: Vodafone | 44$phone@vodafone.net | ^\+?(44)? | Dial 242 for info. activate via website |
 </noautolink>
 
----+++ Section carrierlist
-
-The "carrierlist" section returns a comma separated list of carriers listed in this topic; it also sets spreadsheet hashes for later use.
-
-<div style="display: block;">
-%STARTSECTION{carrierlist}%%SEARCH{
- "^\| *E2SMS *\|"
- type="regex"
- web="%WEB%"
- topic="%TOPIC%"
- nonoise="on"
- multiple="on"
- format="$pattern(.*\| *E2SMS *\|\s*([^\|]+).*)"
- separator=", "
-}%%ENDSECTION{carrierlist}%
-</div>
-
 __Legend of columns:__
 
    * *Type:* Has to be !E2SMS
@@ -114,11 +97,48 @@ __Carrier missing?__ Find more in these e-mail to SMS gateway lists:
    * http://www.emailtextmessages.com/
    * http://www.wigwag.com/devblog/send-free-sms-texts-through-gateways/
 
+---+++ Section carrierlist
+
+The "carrierlist" section returns a comma separated list of carriers listed in this topic; it also sets spreadsheet hashes for later use.
+
+<div style="display: none;">
+%STARTSECTION{carrierlist}%%SEARCH{
+ "^\| *E2SMS *\|"
+ type="regex"
+ web="%WEB%"
+ topic="%TOPIC%"
+ nonoise="on"
+ multiple="on"
+ format="$pattern(.*\| *E2SMS *\|\s*([^\|]+).*)"
+ separator=","
+}%%ENDSECTION{carrierlist}%
+</div>
+
+<div style="display: none;">
+%STARTSECTION{carrierselect}%
+%FORMAT{"%SEARCH{
+ "^\| *E2SMS *\|"
+ type="regex"
+ web="%WEB%"
+ topic="%TOPIC%"
+ nonoise="on"
+ multiple="on"
+ format="$pattern(.*\| *E2SMS *\|\s*([^\|]+).*)"
+ separator=","
+}%"
+type="string"
+format="<option value=\"$item\">$item</option>"
+}%
+%ENDSECTION{carrierselect}%
+</div>
+
 ---++ Security Considerations
 
 This extension is primarily intended for access restricted Foswiki sites that are installed in a public cloud, such as Amazon AWS. We recommend to install an SSL certificate and to enforce the https protocol.
 
 IP address spoofing cannot be done because establishing an SSL connection requires a handshake. The response to a request is sent to the indicated IP address, and if spoofed, it ends up at the actual address, not the intruder's. Thus a handshake fails because the would-be intruder does not receive the response.
+
+This extension stores the user's Mobile number in the !UserForm.  This can reveal mobile numbers if the user's topics are publicly readable.
 
 ---++ Installation Instructions
 
@@ -225,8 +245,9 @@ Many thanks to the following sponsors for supporting this work:
 %META:FIELD{name="Author" title="Author" value="TWiki:Main.PeteerThoeny, Foswiki:Main.GeorgeClark"}%
 %META:FIELD{name="Version" title="Version" value="%25$VERSION%25"}%
 %META:FIELD{name="Release" title="Release" value="%25$RELEASE%25"}%
+%META:FIELD{name="Description" title="Description" value=""}%
 %META:FIELD{name="Repository" title="Repository" value="https://github.com/foswiki/SmsTwoFactorAuthContrib"}%
-%META:FIELD{name="Copyright" title="Copyright" value="&copy; 2014 Wave Systems Corp. %BR% &copy; 2014-2016 TWiki:Main.PeterThoeny %BR% &copy; 2014-2016 TWiki:TWiki.TWikiContributor %BR% &copy; 2017 ProjectContributors"}%
+%META:FIELD{name="Copyright" title="Copyright" value="&copy; 2014 Wave Systems Corp. %25BR%25 &copy; 2014-2016 TWiki:Main.PeterThoeny %25BR%25 &copy; 2014-2016 TWiki:TWiki.TWikiContributor %25BR%25 &copy; 2017 ProjectContributors"}%
 %META:FIELD{name="License" title="License" value="[[http://www.gnu.org/licenses/gpl.html][GPL (Gnu General Public License)]]"}%
 %META:FIELD{name="Home" title="Home" value="Foswiki:Extensions.%25$ROOTMODULE%25"}%
 %META:FIELD{name="Support" title="Support" value="Foswiki:Support.%25$ROOTMODULE%25"}%
