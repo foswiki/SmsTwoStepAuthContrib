@@ -2,13 +2,13 @@
 
 =begin TML
 
----+ package Foswiki::Contrib::SmsTwoStepLoginContrib
+---+ package Foswiki::Contrib::SmsTwoStepAuthContrib
 
   This is a stub module for a new contrib . Customise this module as required .
 
 =cut
 
-package Foswiki::Contrib::SmsTwoStepLoginContrib;
+package Foswiki::Contrib::SmsTwoStepAuthContrib;
 
 # Always use strict to enforce variable scoping
 use strict;
