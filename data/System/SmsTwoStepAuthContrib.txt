@@ -1,11 +1,11 @@
-%META:TOPICINFO{author="BaseUserMapping_333" comment="" date="1503108486" format="1.1" version="2"}%
+%META:TOPICINFO{author="ProjectContributor" comment="" date="1503197778" format="1.1" version="1"}%
 ---+!! SMS Two-Step Authentication Contrib Package
 <sticky>
 <div style="float:right; background-color:#EBEEF0; margin:0 0 20px 20px; padding: 0 10px 0 10px;">
 %TOC{ title="Page contents" depth="2" }%
 </div>
 <div style="float:right; margin:0 0 20px 20px; padding: 0 10px 0 10px;">
-<img src="%ATTACHURLPATH%/sms-access-code-login-350.png" alt="sms-access-code-login-350.png" width="350" height="230" />
+<img src="%ATTACHURLPATH%/sms-access-code-login-350.png" alt="sms-access-code-login-350.png" width="329" height="350" />
 </div>
 </sticky>
 %SHORTDESCRIPTION%
@@ -14,27 +14,36 @@
 
 A single step log-in may not be sufficient in a high security environment. [[Wikipedia:Two-step_verification][Two-step verification]] makes it harder for an intruder to impersonate a user.
 
-This extension adds two-step authentication to Foswiki. The first step is the usual log-in with name and password. After that, a second authentication screen is shown prompting the user to enter an access code. The access code is sent via SMS ([[Wikipedia:Short_Message_Service][Short Message Service]]) to the mobile phone of the user who just logged in. This access code can be used only once. If enabled, the access code can also be sent to the registered e-mail address of the log-in user. A white-list can be defined so that users can log in with a single step at trusted locations, such as at known office locations.
+This extension supplies an alternate !LoginManager (_SmsTwoStepLogin_) for Foswiki that implements two-step login. The first step is the usual log-in with name and password. 
+After that, a second authentication screen is shown prompting the user to enter an access code.
+The access code is sent via SMS ([[Wikipedia:Short_Message_Service][Short Message Service]]) to the mobile phone of the user who just logged in. 
+   * Each access code can be used only once. 
+   * If SMS is unavailable, the access code can optionally be sent to the registered e-mail address of the log-in user. 
+   * A white-list can be defined so that users can log in with a single step at trusted locations, such as at known office locations.
+
+This requires the user to have two factors for access.  Something they "know" - their password,  and something they possess, their cell phone or email.
 
 ---++ Detailed Documentation
 
 <sticky><div style="float:right; margin:0 0 20px 20px; padding: 0 10px 0 10px;">
 &nbsp;&nbsp; __Diagram of two-step log-in process:__ %BR%
-<img src="%ATTACHURLPATH%/sms-2step-auth-diagram.png" alt="sms-2step-auth-diagram.png" width="638" height="487" />
+<img src="%ATTACHURLPATH%/sms-2step-auth-diagram-v2.png" alt="sms-2step-auth-diagram-v2.png" width="600" height="600" />
 </div></sticky>
 Once this extension is installed and configured properly, the log-in process happens as follows:
 
-   * Foswiki's Login Manager shows the usual log-in screen.
-   * The user logs in with name and password.
-   * The Login Manager verifies the password - this can be against Foswiki's internal password manager or an external one, such as the LDAP password manager.
-   * If the password is OK, the !SmsTwoStepAuthContrib checks if the IP address of the user is white-listed.
-   * If white-listed, the !SmsTwoStepAuthContrib tells the Login Manager to log in the user.
-   * Else, the !SmsTwoStepAuthContrib generates a one-time-use access code, sends that to the registered user via SMS, and shows an access code log-in screen.
+   * The !SmsTwoStepLogin Manager shows the usual Template log-in screen.
+   * The user logs in with their WikiName, login name, or email address and password.
+   * The !SmsTwoStepLogin verifies the password - this can be against Foswiki's internal password manager or an external one, such as the LDAP password manager.
+   * If the password is OK, the !SmsTwoStepLogin checks if the IP address of the user is white-listed.
+   * If white-listed, the !SmsTwoStepLogin approves the login..
+   * Else, the !SmsTwoStepLogin generates a one-time-use access code, sends that to the registered user via SMS, and shows an access code log-in screen.
       * If the user has not specified a mobile number and a carrier, and if enabled in configure, the access code is sent to the registered e-mail address of the user.
-      * Else, an error message of insufficient credentials is shown.
-   * The Login Manager receives the access code and forwards it to the !SmsTwoStepAuthContrib.
-   * The !SmsTwoStepAuthContrib verifies the access code against the generated one.
+      * If Two-step login is configured as optional, then the login is still permitted.
+      * Otherwise, an error message of insufficient credentials is shown.
+   * The !SmsTwoStepLogin receives the access code for validation.
+   * The !SmsTwoStepLogin verifies the access code against the generated one.
    * If OK, the !SmsTwoStepAuthContrib tells the Login Manager to log in the user.
+   * If invalid, the login is rejected.
 
 __Notes:__
 
@@ -251,8 +260,7 @@ Many thanks to the following sponsors for supporting this work:
 %META:FIELD{name="License" title="License" value="[[http://www.gnu.org/licenses/gpl.html][GPL (Gnu General Public License)]]"}%
 %META:FIELD{name="Home" title="Home" value="Foswiki:Extensions.%25$ROOTMODULE%25"}%
 %META:FIELD{name="Support" title="Support" value="Foswiki:Support.%25$ROOTMODULE%25"}%
-%META:FILEATTACHMENT{name="mobile-carrier.gif" attachment="mobile-carrier.gif" attr="h" comment="" date="1502939431" size="890" user="ProjectContributor" version="1"}%
-%META:FILEATTACHMENT{name="sms.gif" attachment="sms.gif" attr="h" comment="" date="1502939431" size="2243" user="ProjectContributor" version="1"}%
-%META:FILEATTACHMENT{name="sms-2step-auth-diagram.png" attachment="sms-2step-auth-diagram.png" attr="h" comment="" date="1502939431" size="79934" user="ProjectContributor" version="1"}%
-%META:FILEATTACHMENT{name="sms-access-code-login.png" attachment="sms-access-code-login.png" attr="h" comment="" date="1502939431" size="42595" user="ProjectContributor" version="1"}%
-%META:FILEATTACHMENT{name="sms-access-code-login-350.png" attachment="sms-access-code-login-350.png" attr="h" comment="" date="1502939431" size="53563" user="ProjectContributor" version="1"}%
+%META:FILEATTACHMENT{name="mobile-carrier.gif" attachment="mobile-carrier.gif" attr="h" comment="" date="1503197778" size="890" user="ProjectContributor" version="1"}%
+%META:FILEATTACHMENT{name="sms.gif" attachment="sms.gif" attr="h" comment="" date="1503197778" size="2243" user="ProjectContributor" version="1"}%
+%META:FILEATTACHMENT{name="sms-2step-auth-diagram.png" attachment="sms-2step-auth-diagram.png" attr="h" comment="" date="1503197778" size="79934" user="ProjectContributor" version="1"}%
+%META:FILEATTACHMENT{name="sms-access-code-login-350.png" attachment="sms-access-code-login-350.png" attr="h" comment="" date="1503197778" size="53563" user="ProjectContributor" version="1"}%
