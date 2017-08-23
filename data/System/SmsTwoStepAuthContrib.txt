@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" comment="" date="1503197778" format="1.1" version="1"}%
+%META:TOPICINFO{author="ProjectContributor" comment="" date="1503452085" format="1.1" version="1"}%
 ---+!! SMS Two-Step Authentication Contrib Package
 <sticky>
 <div style="float:right; background-color:#EBEEF0; margin:0 0 20px 20px; padding: 0 10px 0 10px;">
@@ -8,7 +8,7 @@
 <img src="%ATTACHURLPATH%/sms-access-code-login-350.png" alt="sms-access-code-login-350.png" width="329" height="350" />
 </div>
 </sticky>
-%SHORTDESCRIPTION%
+%FORMFIELD{"Description"}%
 
 ---++ Introduction
 
@@ -27,7 +27,7 @@ This requires the user to have two factors for access.  Something they "know" - 
 
 <sticky><div style="float:right; margin:0 0 20px 20px; padding: 0 10px 0 10px;">
 &nbsp;&nbsp; __Diagram of two-step log-in process:__ %BR%
-<img src="%ATTACHURLPATH%/sms-2step-auth-diagram-v2.png" alt="sms-2step-auth-diagram-v2.png" width="600" height="600" />
+<img src="%ATTACHURLPATH%/sms-2step-auth-diagram.png" alt="sms-2step-auth-diagram.png" width="600" height="600" />
 </div></sticky>
 Once this extension is installed and configured properly, the log-in process happens as follows:
 
@@ -104,11 +104,13 @@ __Carrier missing?__ Find more in these e-mail to SMS gateway lists:
 
    * http://www.ukrainecalling.com/email-to-text.aspx
    * http://www.emailtextmessages.com/
-   * http://www.wigwag.com/devblog/send-free-sms-texts-through-gateways/
+   * https://www.opentextingonline.com/emailtotext.aspx
+   * https://github.com/cubiclesoft/email_sms_mms_gateways
+
 
 ---+++ Section carrierlist
 
-The "carrierlist" section returns a comma separated list of carriers listed in this topic; it also sets spreadsheet hashes for later use.
+The "carrierlist" section returns a comma separated list of carriers listed in this topic.
 
 <div style="display: none;">
 %STARTSECTION{carrierlist}%%SEARCH{
@@ -118,10 +120,15 @@ The "carrierlist" section returns a comma separated list of carriers listed in t
  topic="%TOPIC%"
  nonoise="on"
  multiple="on"
- format="$pattern(.*\| *E2SMS *\|\s*([^\|]+).*)"
+ format="$pattern(.*\| *E2SMS *\| *(.*?) *\|.*)"
  separator=","
 }%%ENDSECTION{carrierlist}%
 </div>
+
+---+++ Section carrierselect
+
+The "carrierselect" section returns the carrier list as HTML options statements for use in the
+user registration drop-down, or other forms.
 
 <div style="display: none;">
 %STARTSECTION{carrierselect}%
@@ -132,7 +139,7 @@ The "carrierlist" section returns a comma separated list of carriers listed in t
  topic="%TOPIC%"
  nonoise="on"
  multiple="on"
- format="$pattern(.*\| *E2SMS *\|\s*([^\|]+).*)"
+ format="$pattern(.*\| *E2SMS *\| *(.*?) *\|.*)"
  separator=","
 }%"
 type="string"
@@ -219,8 +226,6 @@ Test if the configuration is successful:
    * From a location that is white-listed, e.g. has its IP address in ={SmsTwoStepAuthContrib}{WhitelistAddresses}= do this:
       * Log in with log-in name and password. You should be able to log in with a single step.
       * Edit your user profile topic and specify a mobile number and mobile carrier.
-      * A "Send SMS" button should appear below the mobile number.
-      * Click on the "Send SMS" button and send yourself an SMS to verify proper operation.
 
    * From a location that is *not* white-listed do this:
       * Log in with log-in name and password.
@@ -232,35 +237,34 @@ Test if the configuration is successful:
 
 ---++ Contrib Info
 
-   * Set SHORTDESCRIPTION = Two-step authentication using SMS for the second step
-
 __Related Topics:__ %SYSTEMWEB%.FoswikiContribs, %SYSTEMWEB%.FoswikiPreferences
 
 ---++ Change History
 
 %TABLE{columnwidths="7em" tablewidth="100%"}%
+|  23 Aug 2017 | (1.01) - Foswikitask:Item14459: Intial release for Foswiki |
 |  2016-01-17: | TWikibug:Item7708: Copyright update to 2016 |
 |  2014-09-22: | TWikibug:Item7539: Add {TwoStepAuth} configuration, with 'disabled', 'optional' and 'required' two-step authentication modes |
 |  2014-09-11: | TWikibug:Item7540: Add debug flag and debug code |
 |  2014-09-10: | TWikibug:Item7540: Initial version |
 
 Many thanks to the following sponsors for supporting this work:
-   * [[http://www.wave.com/][Wave Systems Corp.]]
+   * [[https://www.wave.com/][Wave Systems Corp.]]
 
 <!-- Do _not_ attempt to edit this topic; it is auto-generated. Please add comments/questions/remarks to the Dev topic instead. -->
 
 
 %META:FORM{name="PackageForm"}%
-%META:FIELD{name="Author" title="Author" value="TWiki:Main.PeteerThoeny, Foswiki:Main.GeorgeClark"}%
+%META:FIELD{name="Author" title="Author" value="TWiki:Main.PeterThoeny, Foswiki:Main.GeorgeClark"}%
 %META:FIELD{name="Version" title="Version" value="%25$VERSION%25"}%
 %META:FIELD{name="Release" title="Release" value="%25$RELEASE%25"}%
-%META:FIELD{name="Description" title="Description" value=""}%
+%META:FIELD{name="Description" title="Description" value="%25$SHORTDESCRIPTION%25"}%
 %META:FIELD{name="Repository" title="Repository" value="https://github.com/foswiki/SmsTwoFactorAuthContrib"}%
 %META:FIELD{name="Copyright" title="Copyright" value="&copy; 2014 Wave Systems Corp. %25BR%25 &copy; 2014-2016 TWiki:Main.PeterThoeny %25BR%25 &copy; 2014-2016 TWiki:TWiki.TWikiContributor %25BR%25 &copy; 2017 ProjectContributors"}%
-%META:FIELD{name="License" title="License" value="[[http://www.gnu.org/licenses/gpl.html][GPL (Gnu General Public License)]]"}%
+%META:FIELD{name="License" title="License" value="[[https://www.gnu.org/licenses/gpl.html][GPL (Gnu General Public License)]]"}%
 %META:FIELD{name="Home" title="Home" value="Foswiki:Extensions.%25$ROOTMODULE%25"}%
 %META:FIELD{name="Support" title="Support" value="Foswiki:Support.%25$ROOTMODULE%25"}%
-%META:FILEATTACHMENT{name="mobile-carrier.gif" attachment="mobile-carrier.gif" attr="h" comment="" date="1503197778" size="890" user="ProjectContributor" version="1"}%
-%META:FILEATTACHMENT{name="sms.gif" attachment="sms.gif" attr="h" comment="" date="1503197778" size="2243" user="ProjectContributor" version="1"}%
-%META:FILEATTACHMENT{name="sms-2step-auth-diagram.png" attachment="sms-2step-auth-diagram.png" attr="h" comment="" date="1503197778" size="79934" user="ProjectContributor" version="1"}%
-%META:FILEATTACHMENT{name="sms-access-code-login-350.png" attachment="sms-access-code-login-350.png" attr="h" comment="" date="1503197778" size="53563" user="ProjectContributor" version="1"}%
+%META:FILEATTACHMENT{name="mobile-carrier.gif" attachment="mobile-carrier.gif" attr="h" comment="" date="1503452085" size="890" user="ProjectContributor" version="1"}%
+%META:FILEATTACHMENT{name="sms.gif" attachment="sms.gif" attr="h" comment="" date="1503452085" size="2243" user="ProjectContributor" version="1"}%
+%META:FILEATTACHMENT{name="sms-2step-auth-diagram.png" attachment="sms-2step-auth-diagram.png" attr="h" comment="" date="1503452085" size="79934" user="ProjectContributor" version="1"}%
+%META:FILEATTACHMENT{name="sms-access-code-login-350.png" attachment="sms-access-code-login-350.png" attr="h" comment="" date="1503452085" size="53563" user="ProjectContributor" version="1"}%

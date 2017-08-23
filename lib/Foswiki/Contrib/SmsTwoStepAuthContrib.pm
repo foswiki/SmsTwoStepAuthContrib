@@ -1,7 +1,6 @@
 # See bottom of file for default license and copyright information
 
 =begin TML
-
 ---+ package Foswiki::Contrib::SmsTwoStepAuthContrib
 
   This is a stub module for a new contrib . Customise this module as required .
@@ -14,8 +13,8 @@ package Foswiki::Contrib::SmsTwoStepAuthContrib;
 use strict;
 use warnings;
 
-our $VERSION = '1.0';
-our $RELEASE = '1 Sept 2017';
+our $VERSION = '1.01';
+our $RELEASE = '23 Aug 2017';
 
 our $SHORTDESCRIPTION =
   'Provide 2-factor login authentication using SMS messages.';
