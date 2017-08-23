@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" comment="" date="1450471494" format="1.1" version="1"}%
+%META:TOPICINFO{author="ProjectContributor" comment="" date="1503457002" format="1.1" version="1"}%
 %META:TOPICPARENT{name="AdminToolsCategory"}%
 <noautolink>
 
@@ -17,6 +17,10 @@ your %USERSWEB%.UserRegistration page and update the below settings:
       * !%SET{"REGPARTS" value="%WEB%.%TOPIC%,%SYSTEMWEB%.UserRegistrationParts,%SYSTEMWEB%.SmsAuthRegistrationParts"}%
    1 Enable the extra fields from the FIELDS setting.  Note that extraField_mobile and extraField_mobileCarrier.   The third field, extraField_twoStepAuth is only used if two-step authentication is optional.
       * !%SET{"FIELDS" value="extraField_mobile,extraField_mobileCarrier,extraField_twoStepAuth"}%
+
+Also remember to update the UserForm to add the required fields and update the NewUserTemplate to pull in the updated form.
+[[%SYSTEMWEB%.SmsAuthUserForm]] contains an example user form with the additional fields. It also has customization instructions. 
+These topics should not be updated in the System web.  Follow customization instructions to copy them to the %USERSWEB%.
 
 %JQREQUIRE{"chili"}%
 

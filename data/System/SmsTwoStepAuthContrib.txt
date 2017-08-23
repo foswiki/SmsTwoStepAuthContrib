@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" comment="" date="1503452085" format="1.1" version="1"}%
+%META:TOPICINFO{author="ProjectContributor" comment="" date="1503457002" format="1.1" version="1"}%
 ---+!! SMS Two-Step Authentication Contrib Package
 <sticky>
 <div style="float:right; background-color:#EBEEF0; margin:0 0 20px 20px; padding: 0 10px 0 10px;">
@@ -132,7 +132,7 @@ user registration drop-down, or other forms.
 
 <div style="display: none;">
 %STARTSECTION{carrierselect}%
-%FORMAT{"%SEARCH{
+%FORMAT{",%SEARCH{
  "^\| *E2SMS *\|"
  type="regex"
  web="%WEB%"
@@ -264,7 +264,7 @@ Many thanks to the following sponsors for supporting this work:
 %META:FIELD{name="License" title="License" value="[[https://www.gnu.org/licenses/gpl.html][GPL (Gnu General Public License)]]"}%
 %META:FIELD{name="Home" title="Home" value="Foswiki:Extensions.%25$ROOTMODULE%25"}%
 %META:FIELD{name="Support" title="Support" value="Foswiki:Support.%25$ROOTMODULE%25"}%
-%META:FILEATTACHMENT{name="mobile-carrier.gif" attachment="mobile-carrier.gif" attr="h" comment="" date="1503452085" size="890" user="ProjectContributor" version="1"}%
-%META:FILEATTACHMENT{name="sms.gif" attachment="sms.gif" attr="h" comment="" date="1503452085" size="2243" user="ProjectContributor" version="1"}%
-%META:FILEATTACHMENT{name="sms-2step-auth-diagram.png" attachment="sms-2step-auth-diagram.png" attr="h" comment="" date="1503452085" size="79934" user="ProjectContributor" version="1"}%
-%META:FILEATTACHMENT{name="sms-access-code-login-350.png" attachment="sms-access-code-login-350.png" attr="h" comment="" date="1503452085" size="53563" user="ProjectContributor" version="1"}%
+%META:FILEATTACHMENT{name="mobile-carrier.gif" attachment="mobile-carrier.gif" attr="h" comment="" date="1503457002" size="890" user="ProjectContributor" version="1"}%
+%META:FILEATTACHMENT{name="sms.gif" attachment="sms.gif" attr="h" comment="" date="1503457002" size="2243" user="ProjectContributor" version="1"}%
+%META:FILEATTACHMENT{name="sms-2step-auth-diagram.png" attachment="sms-2step-auth-diagram.png" attr="h" comment="" date="1503457002" size="79934" user="ProjectContributor" version="1"}%
+%META:FILEATTACHMENT{name="sms-access-code-login-350.png" attachment="sms-access-code-login-350.png" attr="h" comment="" date="1503457002" size="53563" user="ProjectContributor" version="1"}%
