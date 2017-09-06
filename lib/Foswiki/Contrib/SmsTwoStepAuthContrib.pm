@@ -13,7 +13,7 @@ package Foswiki::Contrib::SmsTwoStepAuthContrib;
 use strict;
 use warnings;
 
-our $VERSION = '1.01';
+our $VERSION = '1.02';
 our $RELEASE = '06 Sep 2017';
 
 our $SHORTDESCRIPTION =

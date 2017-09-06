@@ -243,7 +243,7 @@ Test if the configuration is successful:
 
 ---++ Contrib Info
 
-__Related Topics:__ %SYSTEMWEB%.FoswikiContribs, %SYSTEMWEB%.FoswikiPreferences
+__Related Topics:__ [[%SYSTEMWEB%.Contribs][Contribs]], [[%SYSTEMWEB%.PreferenceSettings][PreferenceSettings]], [[%SYSTEMWEB%.UserAuthentication][UserAuthentication]]
 
 ---++ Change History
 
