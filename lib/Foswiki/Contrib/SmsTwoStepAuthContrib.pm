@@ -14,7 +14,7 @@ use strict;
 use warnings;
 
 our $VERSION = '1.01';
-our $RELEASE = '23 Aug 2017';
+our $RELEASE = '06 Sep 2017';
 
 our $SHORTDESCRIPTION =
   'Provide 2-factor login authentication using SMS messages.';

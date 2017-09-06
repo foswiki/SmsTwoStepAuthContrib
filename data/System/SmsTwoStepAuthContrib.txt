@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" comment="" date="1503457002" format="1.1" version="1"}%
+%META:TOPICINFO{author="ProjectContributor" comment="" date="1504667881" format="1.1" version="1"}%
 ---+!! SMS Two-Step Authentication Contrib Package
 <sticky>
 <div style="float:right; background-color:#EBEEF0; margin:0 0 20px 20px; padding: 0 10px 0 10px;">
@@ -110,7 +110,8 @@ __Carrier missing?__ Find more in these e-mail to SMS gateway lists:
 
 ---+++ Section carrierlist
 
-The "carrierlist" section returns a comma separated list of carriers listed in this topic.
+The "carrierlist" section returns a comma separated list of carriers listed in this topic.  Access the carrier list
+using =%<nop>INCLUDE{"%SYSTEMWEB%.%TOPIC%" section="carrierlist"}%=
 
 <div style="display: none;">
 %STARTSECTION{carrierlist}%%SEARCH{
@@ -128,7 +129,9 @@ The "carrierlist" section returns a comma separated list of carriers listed in t
 ---+++ Section carrierselect
 
 The "carrierselect" section returns the carrier list as HTML options statements for use in the
-user registration drop-down, or other forms.
+user registration drop-down, or other forms  Access the carrier selection list
+using =%<nop>INCLUDE{"%SYSTEMWEB%.%TOPIC%" section="carrierselect"}%=
+.
 
 <div style="display: none;">
 %STARTSECTION{carrierselect}%
@@ -202,6 +205,7 @@ You do not need to install anything on the browser to use this extension. These 
            %BR% ={SmsTwoStepAuthContrib}{ErrorLoginTmpl} = 'smstwosteperrorlogin';=
          * Access code error message:
            %BR% ={SmsTwoStepAuthContrib}{AcessCodeError} = 'Invalid or outdated access code, please try again.';=
+      * Note that this extension requires a CGI Session prior to login. If you have turned off guest sessions using the expert setting: ={Sessions}{EnableGuestSessions}= it needs to be enabled for two-step login to work.  The fix for Foswikitask:Item14460 will remove this restriction.  This is planned for Foswiki 2.1.5 / 2.2.0.
 
 ---+++ Update !UserForm
 
@@ -264,7 +268,5 @@ Many thanks to the following sponsors for supporting this work:
 %META:FIELD{name="License" title="License" value="[[https://www.gnu.org/licenses/gpl.html][GPL (Gnu General Public License)]]"}%
 %META:FIELD{name="Home" title="Home" value="Foswiki:Extensions.%25$ROOTMODULE%25"}%
 %META:FIELD{name="Support" title="Support" value="Foswiki:Support.%25$ROOTMODULE%25"}%
-%META:FILEATTACHMENT{name="mobile-carrier.gif" attachment="mobile-carrier.gif" attr="h" comment="" date="1503457002" size="890" user="ProjectContributor" version="1"}%
-%META:FILEATTACHMENT{name="sms.gif" attachment="sms.gif" attr="h" comment="" date="1503457002" size="2243" user="ProjectContributor" version="1"}%
-%META:FILEATTACHMENT{name="sms-2step-auth-diagram.png" attachment="sms-2step-auth-diagram.png" attr="h" comment="" date="1503457002" size="79934" user="ProjectContributor" version="1"}%
-%META:FILEATTACHMENT{name="sms-access-code-login-350.png" attachment="sms-access-code-login-350.png" attr="h" comment="" date="1503457002" size="53563" user="ProjectContributor" version="1"}%
+%META:FILEATTACHMENT{name="sms-2step-auth-diagram.png" attachment="sms-2step-auth-diagram.png" attr="h" comment="" date="1504667881" size="79934" user="ProjectContributor" version="1"}%
+%META:FILEATTACHMENT{name="sms-access-code-login-350.png" attachment="sms-access-code-login-350.png" attr="h" comment="" date="1504667881" size="53563" user="ProjectContributor" version="1"}%
