@@ -54,6 +54,7 @@ __Notes:__
 ---++ Mobile Carriers
 
 Users get an SMS as part of the second authentication step. This extension sends an e-mail to an "e-mail to SMS gateway". These gateways are carrier specific. This list defines the parameters of each gateway.
+If a user's carrier does not provide an SMS e-mail gateway, use of two-step login will not be possible. (Example: Google Voice does not make a SMS gateway available.)
 
 <noautolink>
 | *Type* | *Carrier* | *E-mail* | *Filter* | *Activation* |
@@ -155,9 +156,10 @@ format="<option value=\"$item\">$item</option>"
 
 This extension is primarily intended for access restricted Foswiki sites that are installed in a public cloud, such as Amazon AWS. We recommend to install an SSL certificate and to enforce the https protocol.
 
-IP address spoofing cannot be done because establishing an SSL connection requires a handshake. The response to a request is sent to the indicated IP address, and if spoofed, it ends up at the actual address, not the intruder's. Thus a handshake fails because the would-be intruder does not receive the response.
-
 This extension stores the user's Mobile number in the !UserForm.  This can reveal mobile numbers if the user's topics are publicly readable.
+
+This extensions sends the security code using email. For best security and to prevent spoofing of email server, sensure that the email server is
+configured to validate Server Certificates .  If Foswiki is sending email directly using =Net::SMTP=, the setting ={Email}{SSLVerifyServer}= should be enabled.
 
 ---++ Installation Instructions
 
