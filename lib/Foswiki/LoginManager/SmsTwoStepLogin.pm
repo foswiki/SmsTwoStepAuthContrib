@@ -122,7 +122,7 @@ sub login {
             }
         }
 
-        print STDERR "2-Step: user/pass verified\n" if $validation;
+        #print STDERR "2-Step: user/pass verified\n" if $validation;
 
         if ( $validation && $accessCode ) {
 
@@ -130,9 +130,6 @@ sub login {
             $banner = $this->verifyAuth( $session, $loginName, $accessCode );
             $validation = 0 if ($banner);
 
-            # Eat these so there's no risk of accidental passthrough
-            $query->delete( 'foswiki_origin', 'username', 'password',
-                'accesscode' );
         }
         elsif ($validation) {
 
@@ -157,10 +154,11 @@ sub login {
             );
             $banner = $session->templates->expandTemplate('UNRECOGNISED_USER');
 
-            # Eat these so there's no risk of accidental passthrough
-            $query->delete( 'foswiki_origin', 'username', 'password',
-                'accesscode' );
         }
+
+        # Eat these so there's no risk of accidental passthrough
+        $query->delete( 'sudo', 'foswiki_origin', 'username', 'password',
+            'accesscode' );
 
         if ($validation) {
 
@@ -178,10 +176,6 @@ sub login {
                     extra    => "AUTHENTICATION SUCCESS - $loginName - "
                 }
             );
-
-            # remove the sudo param - its only to tell TemplateLogin
-            # that we're using BaseMapper..
-            $query->delete('sudo');
 
             $this->{_cgisession}->param( 'VALIDATION', $validation )
               if $this->{_cgisession};
@@ -246,10 +240,6 @@ sub login {
     # giving the parameter twice will confuse the strikeone Javascript.
     $session->{request}->delete('validation_key');
 
-    # set the usernamestep value so it can be re-displayed if we are here due
-    # to a failed authentication attempt.
-    $query->param( -name => 'usernamestep', -value => $loginName );
-
     # TODO: add JavaScript password encryption in the template
     $origurl ||= '';
 
@@ -305,7 +295,7 @@ sub secondStepAuth {
     my $debug    = $Foswiki::cfg{SmsTwoStepAuthContrib}{Debug};
     my $debugID  = "Foswiki::LoginManager::SmsTwoStepAuth::secondStepAuth";
 
-    print STDERR "2-Step: secondStepAuth called\n";
+    #print STDERR "2-Step: secondStepAuth called\n";
 
     # skip second auth if in command line context
     return '' if $session->inContext('command_line');
@@ -514,9 +504,9 @@ sub verifyAuth {
       ;    # clear session variable (one time use only)
     my $maxAge = $Foswiki::cfg{SmsTwoStepAuthContrib}{MaxAge} || 600;
     my $error = '';
-    print STDERR
-"Verify:  AC: $accessCode  Expected: $expectedAC LN: $loginName Expected: $expectedLN TS $timestamp+$maxAge > "
-      . time() . "\n";
+    #print STDERR
+#"Verify:  AC: $accessCode  Expected: $expectedAC LN: $loginName Expected: $expectedLN TS $timestamp+$maxAge > "
+#      . time() . "\n";
     unless ( $accessCode
         && ( $accessCode eq $expectedAC )
         && ( $loginName  eq $expectedLN )
