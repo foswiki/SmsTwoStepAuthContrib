@@ -130,6 +130,13 @@ sub login {
             $banner = $this->verifyAuth( $session, $loginName, $accessCode );
             $validation = 0 if ($banner);
 
+            # Eat these so there's no risk of accidental passthrough
+            $query->delete(
+                'sudo',     'foswiki_origin',
+                'username', 'password',
+                'accesscode'
+            );
+
         }
         elsif ($validation) {
 
@@ -154,11 +161,13 @@ sub login {
             );
             $banner = $session->templates->expandTemplate('UNRECOGNISED_USER');
 
+            # Eat these so there's no risk of accidental passthrough
+            $query->delete(
+                'sudo',     'foswiki_origin',
+                'username', 'password',
+                'accesscode'
+            );
         }
-
-        # Eat these so there's no risk of accidental passthrough
-        $query->delete( 'sudo', 'foswiki_origin', 'username', 'password',
-            'accesscode' );
 
         if ($validation) {
 
@@ -175,6 +184,14 @@ sub login {
                     webTopic => $web . '.' . $topic,
                     extra    => "AUTHENTICATION SUCCESS - $loginName - "
                 }
+            );
+
+            # remove the sudo param - its only to tell TemplateLogin
+            # that we're using BaseMapper..
+            $query->delete(
+                'sudo',       'foswiki_origin',
+                'username',   'password',
+                'accesscode', 'validation_key'
             );
 
             $this->{_cgisession}->param( 'VALIDATION', $validation )
@@ -238,7 +255,7 @@ sub login {
     # Remove the validation_key from the *passed through* params. It isn't
     # required, because the form will have a new validation key, and
     # giving the parameter twice will confuse the strikeone Javascript.
-    $session->{request}->delete('validation_key');
+    $query->delete('validation_key');
 
     # TODO: add JavaScript password encryption in the template
     $origurl ||= '';
@@ -451,8 +468,7 @@ sub secondStepAuth {
 
     # send e-mail to log-in user with access code
     if ($authPossible) {
-        my $tmpl =
-          Foswiki::Func::readTemplate( $messageTemplate, $session->getSkin() );
+        my $tmpl = Foswiki::Func::readTemplate($messageTemplate);
         return
 "Two-step authentication installation error: $messageTemplate template not found"
           unless ($tmpl);
@@ -474,8 +490,7 @@ sub secondStepAuth {
     }
 
     # load and return "enter access code" template
-    my $tmpl =
-      Foswiki::Func::readTemplate( $dialogTemplate, $session->getSkin() )
+    my $tmpl = Foswiki::Func::readTemplate($dialogTemplate)
       || "Two-step authentication installation error: $dialogTemplate template not found";
     $tmpl =~ s/%LOGINNAME%/$loginName/go;
     $tmpl =~ s/%ORIGURL%/$origUrl/go;
@@ -504,7 +519,8 @@ sub verifyAuth {
       ;    # clear session variable (one time use only)
     my $maxAge = $Foswiki::cfg{SmsTwoStepAuthContrib}{MaxAge} || 600;
     my $error = '';
-    #print STDERR
+
+#print STDERR
 #"Verify:  AC: $accessCode  Expected: $expectedAC LN: $loginName Expected: $expectedLN TS $timestamp+$maxAge > "
 #      . time() . "\n";
     unless ( $accessCode

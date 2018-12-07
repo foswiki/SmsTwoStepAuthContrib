@@ -76,7 +76,7 @@ If a user's carrier does not provide an SMS e-mail gateway, use of two-step logi
 | E2SMS | Germany: O2 | 0$phone@o2online.de | ^\+?(49)?0? | Send +OPEN to 6245 |
 | E2SMS | Germany: Simyo | $phone@eplus.de | ^\+?(49)?0? | |
 | E2SMS | Germany: T-Mobile | +49$phone@t-d1-sms.de | ^\+?(49)?0? | Send OPEN to 8000 |
-| E2SMS | Germany: Vodafone | $phone@vodafone-sms.de | ^\+?(49)?0? | Send OPEN to 3400 |
+| E2SMS | Germany: Vodafone | 0$phone@vodafone-sms.de | ^\+?(49)?0? | Send OPEN to 3400 |
 | E2SMS | Israel: Cellcom | $phone@cellcom.co.il | ^\+?(972)? | |
 | E2SMS | Israel: Orange IL | $phone@shiny.co.il | ^\+?(972)? | |
 | E2SMS | Israel: Spikko | $phone@spikosms.com | ^\+?(972)? | |
